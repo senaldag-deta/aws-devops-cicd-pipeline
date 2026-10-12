@@ -16,3 +16,16 @@ jobs:
 
       - name: Build Docker image
         run: docker build -t aws-devops-flask:test .
+      - name: Test Flask application
+        run: |
+          docker run -d -p 5000:5000 --name flask-test aws-devops-flask:test
+          for i in {1..10}; do
+            if curl --fail --silent http://localhost:5000/health | grep -q '"status":"healthy"'; then
+              echo "Flask health check passed!"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "Flask health check failed!"
+          docker logs flask-test
+          exit 1
