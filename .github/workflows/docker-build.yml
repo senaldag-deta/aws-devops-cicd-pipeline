@@ -43,5 +43,9 @@ jobs:
       - name: Push Docker image to GitHub Container Registry
         if: github.event_name == 'push'
         run: |
+          
           docker tag aws-devops-flask:test ghcr.io/senaldag-deta/aws-devops-cicd-pipeline:latest
+          docker tag aws-devops-flask:test ghcr.io/senaldag-deta/aws-devops-cicd-pipeline:${GITHUB_SHA::7}
           docker push ghcr.io/senaldag-deta/aws-devops-cicd-pipeline:latest
+          docker push ghcr.io/senaldag-deta/aws-devops-cicd-pipeline:${GITHUB_SHA::7}
+
