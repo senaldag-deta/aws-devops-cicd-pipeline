@@ -9,6 +9,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
 
     steps:
       - name: Checkout repository
@@ -29,3 +32,16 @@ jobs:
           echo "Flask health check failed!"
           docker logs flask-test
           exit 1
+      - name: Log in to GitHub Container Registry
+        if: github.event_name == 'push'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+        
+      - name: Push Docker image to GitHub Container Registry
+        if: github.event_name == 'push'
+        run: |
+          docker tag aws-devops-flask:test ghcr.io/senaldag-deta/aws-devops-cicd-pipeline:latest
+          docker push ghcr.io/senaldag-deta/aws-devops-cicd-pipeline:latest
